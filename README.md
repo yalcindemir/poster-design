@@ -34,7 +34,7 @@ Güzel, kullanımı kolay ve güçlü özelliklere sahip yaratıcı bir görsel 
 ## Hızlı Başlangıç
 
 ```
-git clone https://github.com/palxiao/poster-design.git
+git clone https://github.com/yalcindemir/poster-design.git
 cd poster-design
 npm run prepared
 npm run dev
