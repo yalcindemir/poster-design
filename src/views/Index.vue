@@ -3,7 +3,7 @@
  * @Date: 2023-09-18 17:34:44
  * @Description: 
  * @LastEditors: Jeremy Yu <https://github.com/JeremyYu-cn>
- * @LastUpdateContent: Support typescript
+ * @LastUpdateContent: Typescript desteği
  * @LastEditTime: 2024-02-25 14:51:00
 -->
 <template>
@@ -16,7 +16,7 @@
             <div :class="['operation-item', { disable: !undoable }]" @click="undoable ? handleHistory('undo') : ''"><i class="iconfont icon-undo" /></div>
             <div :class="['operation-item', { disable: !redoable }]" @click="redoable ? handleHistory('redo') : ''"><i class="iconfont icon-redo" /></div>
           </div>
-          <el-tooltip effect="dark" content="标尺" placement="bottom">
+          <el-tooltip effect="dark" content="Cetvel" placement="bottom">
             <i style="font-size: 20px" class="icon sd-biaochi extra-operation" @click="changeLineGuides" />
           </el-tooltip>
         </div>
@@ -26,26 +26,26 @@
     <div class="page-design-index-wrap">
       <widget-panel></widget-panel>
       <design-board class="page-design-wrap" pageDesignCanvasId="page-design-canvas">
-        <!-- 用于挡住画布溢出部分，因为使用overflow有bug -->
+        <!-- Tuvalin taşan kısmını gizlemek için, overflow kullanmak hatalı olduğundan -->
         <div class="shelter" :style="{ width: Math.floor((dPage.width * dZoom) / 100) + 'px', height: Math.floor((dPage.height * dZoom) / 100) + 'px' }"></div>
-        <!-- 提供一个背景图层 -->
+        <!-- Arka plan katmanı sağlar -->
         <div class="shelter-bg transparent-bg" :style="{ width: Math.floor((dPage.width * dZoom) / 100) + 'px', height: Math.floor((dPage.height * dZoom) / 100) + 'px' }"></div>
       </design-board>
       <style-panel></style-panel>
     </div>
-    <!-- 标尺 -->
+    <!-- Cetvel -->
     <line-guides :show="state.showLineGuides" />
-    <!-- 缩放控制 -->
+    <!-- Yakınlaştırma kontrolü -->
     <zoom-control ref="zoomControlRef" />
-    <!-- 右键菜单 -->
+    <!-- Sağ tık menüsü -->
     <right-click-menu />
-    <!-- 旋转缩放组件 -->
+    <!-- Döndürme ve ölçeklendirme bileşeni -->
     <Moveable />
-    <!-- 遮罩百分比进度条 -->
+    <!-- Maske yükleme ilerleme çubuğu -->
     <ProgressLoading
       :percent="state.downloadPercent"
       :text="state.downloadText"
-      cancelText="取消"
+      cancelText="İptal"
       @cancel="downloadCancel"
       @done="state.downloadPercent = 0"
     />
@@ -76,7 +76,7 @@ import { wGroupSetting } from '@/components/modules/widgets/wGroup/groupSetting'
 
 type TState = {
   style: CSSProperties
-  downloadPercent: number // 下载进度
+  downloadPercent: number // İndirme ilerleme yüzdesi
   downloadText: string
   isContinue: boolean
   APP_NAME: string
@@ -84,7 +84,7 @@ type TState = {
 }
 
 const beforeUnload = function (e: Event): string {
-  const confirmationMessage: string = '系统不会自动保存您未修改的内容';
+  const confirmationMessage: string = 'Sistem, kaydedilmemiş değişikliklerinizi otomatik olarak kaydetmeyecektir';
 
   (e || window.event).returnValue = (confirmationMessage as any) // Gecko and Trident
   return confirmationMessage // Gecko and WebKit
@@ -102,7 +102,7 @@ const state = reactive<TState>({
     left: '0px',
   },
   // openDraw: false,
-  downloadPercent: 0, // 下载进度
+  downloadPercent: 0, // İndirme ilerleme yüzdesi
   downloadText: '',
   isContinue: true,
   APP_NAME: _config.APP_NAME,
@@ -123,8 +123,26 @@ function jump2home() {
   window.open('https://xp.palxp.cn/')
 }
 
+function zoomSub() {
+  if (!zoomControlRef.value) return
+  zoomControlRef.value.sub()
+}
+
+function zoomAdd() {
+  if (!zoomControlRef.value) return
+  zoomControlRef.value.add()
+}
+
+function save() {
+  if (!optionsRef.value) return
+  optionsRef.value.saveTemplate()
+}
+
 defineExpose({
   jump2home,
+  zoomSub,
+  zoomAdd,
+  save,
 })
 
 const undoable = computed(() => {
@@ -181,14 +199,14 @@ function downloadCancel() {
 }
 
 function loadData() {
-  // 初始化加载页面
+  // Sayfa yüklemesini başlat
   const { id, tempid, tempType } = route.query
   if (!optionsRef.value) return
   optionsRef.value.load(id, tempid, tempType, async () => {
     if (!zoomControlRef.value) return
     zoomControlRef.value.screenChange()
     await nextTick()
-    // 初始化激活的控件为page
+    // Sayfa widget'ını aktif olarak başlat
     store.dispatch('selectWidget', { uuid: '-1' })
     // selectWidget({
     //   uuid: '-1',
@@ -196,28 +214,13 @@ function loadData() {
   })
 }
 
-function zoomSub() {
-  if (!zoomControlRef.value) return
-  zoomControlRef.value.sub()
-}
-
-function zoomAdd() {
-  if (!zoomControlRef.value) return
-  zoomControlRef.value.add()
-}
-
-function save() {
-  if (!optionsRef.value) return
-  optionsRef.value.save()
-}
-
 function fixTopBarScroll() {
-  const scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
-  state.style.left = `-${scrollLeft}px`
+  const scrollTop = document.documentElement.scrollTop || document.body.scrollTop
+  state.style.left = -scrollTop + 'px'
 }
 
 function clickListener(e: Event) {
-  console.log('click listener', e)
+  console.log(e)
 }
 
 function optionsChange({ downloadPercent, downloadText }: { downloadPercent: number, downloadText: string }) {
